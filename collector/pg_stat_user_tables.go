@@ -194,8 +194,8 @@ func (c *PGStatUserTablesCollector) Update(ctx context.Context, db *sql.DB, ch c
 		var relname string
 		var seqScan int64
 		var seqTupRead int64
-		var idxScan int64
-		var idxTupFetch int64
+		var idxScan sql.NullInt64
+		var idxTupFetch sql.NullInt64
 		var nTupIns int64
 		var nTupUpd int64
 		var nTupDel int64
@@ -228,16 +228,30 @@ func (c *PGStatUserTablesCollector) Update(ctx context.Context, db *sql.DB, ch c
 			float64(seqTupRead),
 			datname, schemaname, relname,
 		)
+		// Handle NULL idx_scan value
+		var idxScanValue float64
+		if idxScan.Valid {
+			idxScanValue = float64(idxScan.Int64)
+		} else {
+			idxScanValue = 0
+		}
 		ch <- prometheus.MustNewConstMetric(
 			statUserTablesIdxScan,
 			prometheus.CounterValue,
-			float64(idxScan),
+			idxScanValue,
 			datname, schemaname, relname,
 		)
+		// Handle NULL idxTupFetch value
+		var idxTupFetchValue float64
+		if idxTupFetch.Valid {
+			idxTupFetchValue = float64(idxTupFetch.Int64)
+		} else {
+			idxTupFetchValue = 0
+		}
 		ch <- prometheus.MustNewConstMetric(
 			statUserTablesIdxTupFetch,
 			prometheus.CounterValue,
-			float64(idxTupFetch),
+			idxTupFetchValue,
 			datname, schemaname, relname,
 		)
 		ch <- prometheus.MustNewConstMetric(

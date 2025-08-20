@@ -226,7 +226,7 @@ func (PGStatDatabaseCollector) Update(ctx context.Context, db *sql.DB, ch chan<-
 			,blk_read_time
 			,blk_write_time
 			,stats_reset
-		FROM pg_stat_database;
+		FROM pg_stat_database WHERE datname IS NOT NULL;
 		`,
 	)
 	if err != nil {

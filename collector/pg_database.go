@@ -54,7 +54,7 @@ var (
 		[]string{"datname"}, nil,
 	)
 
-	pgDatabaseQuery     = "SELECT pg_database.datname FROM pg_database;"
+	pgDatabaseQuery     = "SELECT pg_database.datname FROM pg_database WHERE datname IS NOT NULL;"
 	pgDatabaseSizeQuery = "SELECT pg_database_size($1)"
 )
 

@@ -115,12 +115,12 @@ func (PGStatIOUserTablesCollector) Update(ctx context.Context, db *sql.DB, ch ch
 		var relname string
 		var heapBlksRead int64
 		var heapBlksHit int64
-		var idxBlksRead int64
-		var idxBlksHit int64
-		var toastBlksRead int64
-		var toastBlksHit int64
-		var tidxBlksRead int64
-		var tidxBlksHit int64
+		var idxBlksRead sql.NullInt64
+		var idxBlksHit sql.NullInt64
+		var toastBlksRead sql.NullInt64
+		var toastBlksHit sql.NullInt64
+		var tidxBlksRead sql.NullInt64
+		var tidxBlksHit sql.NullInt64
 
 		if err := rows.Scan(&datname, &schemaname, &relname, &heapBlksRead, &heapBlksHit, &idxBlksRead, &idxBlksHit, &toastBlksRead, &toastBlksHit, &tidxBlksRead, &tidxBlksHit); err != nil {
 			return err
@@ -138,40 +138,82 @@ func (PGStatIOUserTablesCollector) Update(ctx context.Context, db *sql.DB, ch ch
 			float64(heapBlksHit),
 			datname, schemaname, relname,
 		)
+		// Handle NULL idx_blks_read value
+		var idxBlksReadValue float64
+		if idxBlksRead.Valid {
+			idxBlksReadValue = float64(idxBlksRead.Int64)
+		} else {
+			idxBlksReadValue = 0
+		}
 		ch <- prometheus.MustNewConstMetric(
 			statioUserTablesIdxBlksRead,
 			prometheus.CounterValue,
-			float64(idxBlksRead),
+			idxBlksReadValue,
 			datname, schemaname, relname,
 		)
+		// Handle NULL idx_blks_hit value
+		var idxBlksHitValue float64
+		if idxBlksHit.Valid {
+			idxBlksHitValue = float64(idxBlksHit.Int64)
+		} else {
+			idxBlksHitValue = 0
+		}
 		ch <- prometheus.MustNewConstMetric(
 			statioUserTablesIdxBlksHit,
 			prometheus.CounterValue,
-			float64(idxBlksHit),
+			idxBlksHitValue,
 			datname, schemaname, relname,
 		)
+		// Handle NULL toast_blks_read value
+		var toastBlksReadValue float64
+		if toastBlksRead.Valid {
+			toastBlksReadValue = float64(toastBlksRead.Int64)
+		} else {
+			toastBlksReadValue = 0
+		}
 		ch <- prometheus.MustNewConstMetric(
 			statioUserTablesToastBlksRead,
 			prometheus.CounterValue,
-			float64(toastBlksRead),
+			toastBlksReadValue,
 			datname, schemaname, relname,
 		)
+		// Handle NULL toast_blks_hit value
+		var toastBlksHitValue float64
+		if toastBlksHit.Valid {
+			toastBlksHitValue = float64(toastBlksHit.Int64)
+		} else {
+			toastBlksHitValue = 0
+		}
 		ch <- prometheus.MustNewConstMetric(
 			statioUserTablesToastBlksHit,
 			prometheus.CounterValue,
-			float64(toastBlksHit),
+			toastBlksHitValue,
 			datname, schemaname, relname,
 		)
+		// Handle NULL tidx_blks_read value
+		var tidxBlksReadValue float64
+		if tidxBlksRead.Valid {
+			tidxBlksReadValue = float64(tidxBlksRead.Int64)
+		} else {
+			tidxBlksReadValue = 0
+		}
 		ch <- prometheus.MustNewConstMetric(
 			statioUserTablesTidxBlksRead,
 			prometheus.CounterValue,
-			float64(tidxBlksRead),
+			tidxBlksReadValue,
 			datname, schemaname, relname,
 		)
+		// Handle NULL tidx_blks_hit value
+		var tidxBlksHitValue float64
+		if tidxBlksHit.Valid {
+			tidxBlksHitValue = float64(tidxBlksHit.Int64)
+		} else {
+			tidxBlksHitValue = 0
+		}
 		ch <- prometheus.MustNewConstMetric(
 			statioUserTablesTidxBlksHit,
 			prometheus.CounterValue,
-			float64(tidxBlksHit),
+			tidxBlksHitValue,
 			datname, schemaname, relname,
 		)
 	}
