@@ -155,14 +155,9 @@ func NewPostgresCollector(logger log.Logger, excludeDatabases []string, dsn stri
 	}
 	db.SetMaxOpenConns(1)
 	db.SetMaxIdleConns(1)
-	db.SetConnMaxLifetime(5 * time.Minute)
-	db.SetConnMaxIdleTime(1 * time.Minute)
 
-	// Validate the connection by pinging the database with timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	if err := db.PingContext(ctx); err != nil {
+	// Validate the connection by pinging the database
+	if err := db.Ping(); err != nil {
 		db.Close()
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
