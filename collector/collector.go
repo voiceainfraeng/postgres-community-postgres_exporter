@@ -156,13 +156,6 @@ func NewPostgresCollector(logger log.Logger, excludeDatabases []string, dsn stri
 	db.SetMaxOpenConns(1)
 	db.SetMaxIdleConns(1)
 
-	// Validate the connection by pinging the database
-	if err := db.Ping(); err != nil {
-		db.Close()
-		return nil, fmt.Errorf("failed to connect to database: %w", err)
-	}
-
-	level.Info(logger).Log("msg", "Successfully connected to PostgreSQL database")
 	p.db = db
 
 	return p, nil
@@ -189,11 +182,6 @@ func (p PostgresCollector) Collect(ch chan<- prometheus.Metric) {
 }
 
 func execute(ctx context.Context, name string, c Collector, db *sql.DB, ch chan<- prometheus.Metric, logger log.Logger) {
-	if db == nil {
-		level.Error(logger).Log("msg", "Database connection is nil, cannot execute collector", "collector", name)
-		return
-	}
-
 	begin := time.Now()
 	err := c.Update(ctx, db, ch)
 	duration := time.Since(begin)
