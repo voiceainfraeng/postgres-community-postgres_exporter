@@ -22,7 +22,6 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 	"github.com/go-kit/log"
 	"github.com/go-kit/log/level"
-	"github.com/prometheus-community/postgres_exporter/collector"
 	"github.com/prometheus-community/postgres_exporter/config"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -117,24 +116,6 @@ func main() {
 	prometheus.MustRegister(version.NewCollector(exporterName))
 
 	prometheus.MustRegister(exporter)
-
-	// TODO(@sysadmind): Remove this with multi-target support. We are removing multiple DSN support
-	dsn := ""
-	if len(dsns) > 0 {
-		dsn = dsns[0]
-	}
-
-	pe, err := collector.NewPostgresCollector(
-		logger,
-		excludedDatabases,
-		dsn,
-		[]string{},
-	)
-	if err != nil {
-		level.Warn(logger).Log("msg", "Failed to create PostgresCollector", "err", err.Error())
-	} else {
-		prometheus.MustRegister(pe)
-	}
 
 	http.Handle(*metricsPath, promhttp.Handler())
 

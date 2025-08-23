@@ -44,7 +44,7 @@ var (
 		[]string{}, nil,
 	)
 
-	pgPostmasterQuery = "SELECT EXTRACT(EPOCH FROM pg_postmaster_start_time()) from pg_postmaster_start_time();"
+	pgPostmasterQuery = "SELECT EXTRACT(EPOCH FROM pg_postmaster_start_time()) as start_time_seconds;"
 )
 
 func (c *PGPostmasterCollector) Update(ctx context.Context, db *sql.DB, ch chan<- prometheus.Metric) error {
